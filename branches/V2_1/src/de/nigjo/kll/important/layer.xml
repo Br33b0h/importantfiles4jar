@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+  <folder name="de-nigjo-kll-important">
+    <folder name="Files">
+      <file name="de-nigjo-kll-important-build-xml">
+        <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#build-xml"/>
+        <attr name="position" intvalue="100"/>
+        <attr name="projectFile" stringvalue="build.xml"/>
+      </file>
+      <file name="de-nigjo-kll-important-project-xml">
+        <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#project-xml"/>
+        <attr name="position" intvalue="300"/>
+        <attr name="projectFile" stringvalue="nbproject/project.xml"/>
+      </file>
+      <file name="de-nigjo-kll-important-private-xml">
+        <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#private-xml"/>
+        <attr name="position" intvalue="600"/>
+        <attr name="projectFile" stringvalue="nbproject/private/private.xml"/>
+      </file>
+      <file name="de-nigjo-kll-important-private-properties">
+        <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#private-properties"/>
+        <attr name="position" intvalue="500"/>
+        <attr name="projectFile" stringvalue="nbproject/private/private.properties"/>
+      </file>
+      <file name="de-nigjo-kll-important-project-properties">
+        <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#project-properties"/>
+        <attr name="position" intvalue="400"/>
+        <attr name="projectFile" stringvalue="nbproject/private/project.properties"/>
+      </file>
+      <file name="de-nigjo-kll-important-manifest-mf">
+        <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#manifest-mf"/>
+        <attr name="position" intvalue="200"/>
+        <attr name="projectFile" stringvalue="manifest.mf"/>
+      </file>
+    </folder>
+  </folder>
+</filesystem>
