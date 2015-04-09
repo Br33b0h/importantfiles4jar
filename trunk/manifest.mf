@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: de.nigjo.kll.important
+OpenIDE-Module-Implementation-Version: 0
+OpenIDE-Module-Layer: de/nigjo/kll/important/layer.xml
+OpenIDE-Module-Localizing-Bundle: de/nigjo/kll/important/Bundle.properties
+
