@@ -160,13 +160,9 @@ public class ImportantFileChildFactory extends ChildFactory<String>
       super(original);
       Parameters.notNull("layerEntry", layerEntry);
       Object displName = layerEntry.getAttribute("displayName");
-
-      if(displName == null)
+      if(displName != null)
       {
         disableDelegation(DELEGATE_GET_DISPLAY_NAME | DELEGATE_SET_DISPLAY_NAME);
-      }
-      else
-      {
         setDisplayName(displName.toString());
       }
       iconBase = layerEntry.getAttribute("iconBase");
@@ -197,5 +193,6 @@ public class ImportantFileChildFactory extends ChildFactory<String>
         return super.getOpenedIcon(type);
       }
     }
+
   }
 }
