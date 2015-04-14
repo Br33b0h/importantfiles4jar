@@ -26,7 +26,7 @@
       <file name="de-nigjo-kll-important-project-properties">
         <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#project-properties"/>
         <attr name="position" intvalue="400"/>
-        <attr name="projectFile" stringvalue="nbproject/private/project.properties"/>
+        <attr name="projectFile" stringvalue="nbproject/project.properties"/>
       </file>
       <file name="de-nigjo-kll-important-manifest-mf">
         <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#manifest-mf"/>
