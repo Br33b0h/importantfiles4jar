@@ -5,10 +5,11 @@
  */
 package de.nigjo.kll.important.nodes;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +26,7 @@ import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.ChildFactory;
+import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
@@ -36,33 +37,89 @@ import org.openide.util.Parameters;
  *
  * @author kll
  */
-public class ImportantFileChildFactory extends ChildFactory<String>
+public class ImportantFileChildFactory extends Children.Keys<String>
 {
 
   private Project currentProject;
-  private Map<String, Node> nodes;
+  private java.util.Map<String, Node> nodeMap;
   private ProjectFileListener fileListener;
 
   public ImportantFileChildFactory(Project currentProject)
   {
     this.currentProject = currentProject;
     fileListener = new ProjectFileListener();
-    nodes = new HashMap<>();
+    nodeMap = new HashMap<>();
 
-    //Register Listener to immediatly refresh the node tree if something changes.
-    FileObject projDir = this.currentProject.getProjectDirectory();
-    projDir.addFileChangeListener(fileListener);
-    FileObject nbproj = projDir.getFileObject("nbproject");
-    nbproj.addFileChangeListener(fileListener);
-    Enumeration<? extends FileObject> folders = nbproj.getFolders(true);
-    while(folders.hasMoreElements())
-    {
-      folders.nextElement().addFileChangeListener(fileListener);
-    }
   }
 
   @Override
-  protected boolean createKeys(List<String> toPopulate)
+  @SuppressWarnings("unchecked")
+  protected void addNotify()
+  {
+    setKeys(createKeys());
+    //Register Listener to immediatly refresh the node tree if something changes.
+    updateFileListener(true);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected void removeNotify()
+  {
+    updateFileListener(false);
+    setKeys(Collections.EMPTY_LIST);
+  }
+
+  private void updateFileListener(boolean add)
+  {
+    FileObject folder_listener =
+        FileUtil.getConfigRoot().getFileObject("de-nigjo-kll-important/FileListener");
+    Enumeration<? extends FileObject> listener = folder_listener.getChildren(true);
+    while(listener.hasMoreElements())
+    {
+      FileObject nextElement = listener.nextElement();
+      Boolean relative = (Boolean)nextElement.getAttribute("relativePath");
+      String path = nextElement.getAttribute("path").toString();
+      Boolean recursive = (Boolean)nextElement.getAttribute("recursive");
+      if(relative)
+      {
+        doFileListener(this.currentProject.getProjectDirectory().getFileObject(path), add,
+            recursive);
+      }
+    }
+  }
+
+  private void doFileListener(FileObject f, boolean add, boolean recursive)
+  {
+    if(f == null)
+    {
+      return;
+    }
+    if(!recursive)
+    {
+      if(add)
+      {
+        f.addFileChangeListener(fileListener);
+      }
+      else
+      {
+        f.removeFileChangeListener(fileListener);
+      }
+    }
+    else
+    {
+      if(add)
+      {
+        f.addRecursiveListener(fileListener);
+      }
+      else
+      {
+        f.removeRecursiveListener(fileListener);
+      }
+    }
+  }
+
+
+  protected List<String> createKeys()
   {
     FileObject files =
         FileUtil.getConfigRoot().getFileObject("de-nigjo-kll-important/Files");
@@ -74,40 +131,51 @@ public class ImportantFileChildFactory extends ChildFactory<String>
       {
         Logger.getLogger(ImportantFileChildFactory.class.getName()).log(Level.SEVERE,
             "File named \"{0}\" had no attribute \"projectFile\"", file.getName());
-        break;
+        continue;
       }
       FileObject projFile =
           currentProject.getProjectDirectory().getFileObject(attr_projectFile.toString());
       if(projFile == null || projFile.isVirtual())
       {
-        Logger.getLogger(ImportantFileChildFactory.class.getName()).log(Level.SEVERE,
+        Logger.getLogger(ImportantFileChildFactory.class.getName()).log(Level.WARNING,
             "File \"{0}\" can't be found in Project \"{1}\"",
-            new Object[]
+            new String[]
             {
               attr_projectFile.toString(),
               ProjectUtils.getInformation(currentProject).getDisplayName()
             });
-        break;
+        continue;
       }
-      try
+      if(nodeMap.get(file.getName()) == null)
       {
-        DataObject do_file = DataObject.find(projFile);
-        Node clone = new ImportantFileFilterNode(do_file.getNodeDelegate(), file);
-        nodes.put(file.getName(), clone);
-      }
-      catch(DataObjectNotFoundException ex)
-      {
-        Exceptions.printStackTrace(ex);
+        try
+        {
+          DataObject do_file = DataObject.find(projFile);
+          Node clone = new ImportantFileFilterNode(do_file.getNodeDelegate(), file);
+          nodeMap.put(file.getName(), clone);
+        }
+        catch(DataObjectNotFoundException ex)
+        {
+          Exceptions.printStackTrace(ex);
+        }
       }
     }
-    toPopulate.addAll(nodes.keySet());
-    return true;
+    List<String> toPopulate = new ArrayList<>(nodeMap.keySet());
+    return toPopulate;
   }
 
   @Override
+  protected Node[] createNodes(String key)
+  {
+    return new Node[]
+    {
+      createNodeForKey(key)
+    };
+  }
+
   protected Node createNodeForKey(String key)
   {
-    Node resultNode = nodes.get(key);
+    Node resultNode = nodeMap.get(key);
     return resultNode;
   }
 
@@ -118,13 +186,13 @@ public class ImportantFileChildFactory extends ChildFactory<String>
     public void fileFolderCreated(FileEvent fe)
     {
       fe.getFile().addFileChangeListener(this);
-      refresh(true);
+      setKeys(createKeys());
     }
 
     @Override
     public void fileDataCreated(FileEvent fe)
     {
-      refresh(true);
+      setKeys(createKeys());
     }
 
     @Override
@@ -135,13 +203,15 @@ public class ImportantFileChildFactory extends ChildFactory<String>
     @Override
     public void fileDeleted(FileEvent fe)
     {
-      refresh(true);
+      nodeMap.remove(fe.getFile().getName());
+      setKeys(createKeys());
     }
 
     @Override
     public void fileRenamed(FileRenameEvent fe)
     {
-      refresh(true);
+      nodeMap.remove(fe.getName());
+      setKeys(createKeys());
     }
 
     @Override
