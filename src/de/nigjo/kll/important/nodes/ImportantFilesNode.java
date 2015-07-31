@@ -28,8 +28,7 @@ public class ImportantFilesNode extends FilterNode
 
   public ImportantFilesNode(Node original, Project context)
   {
-    super(original, Children.create(new ImportantFileChildFactory(context), true),
-        Lookups.singleton(context));
+    super(original, new ImportantFileChildFactory(context), Lookups.singleton(context));
   }
 
   @Override

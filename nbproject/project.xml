@@ -66,7 +66,7 @@
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>de.nigjo.kll.important.api</package>
+                <package>de.nigjo.kll.important</package>
             </public-packages>
         </data>
     </configuration>
