@@ -26,7 +26,7 @@
       <file name="de-nigjo-kll-important-project-properties">
         <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#project-properties"/>
         <attr name="position" intvalue="400"/>
-        <attr name="projectFile" stringvalue="nbproject/private/project.properties"/>
+        <attr name="projectFile" stringvalue="nbproject/project.properties"/>
       </file>
       <file name="de-nigjo-kll-important-manifest-mf">
         <attr name="displayName" bundlevalue="de.nigjo.kll.important.nodes.Bundle#manifest-mf"/>
@@ -34,5 +34,22 @@
         <attr name="projectFile" stringvalue="manifest.mf"/>
       </file>
     </folder>
+    <folder name="FileListener">
+      <file name="nbprojectListener">
+        <attr name="recursive" boolvalue="true"/>
+        <attr name="relativePath" boolvalue="true"/>
+        <attr name="path" stringvalue="nbproject"/>
+      </file>
+      <file name="manifestListener">
+        <attr name="recursive" boolvalue="false"/>
+        <attr name="relativePath" boolvalue="true"/>
+        <attr name="path" stringvalue="manifest.mf"/>
+      </file>
+      <file name="buildXMLListener">
+        <attr name="recursive" boolvalue="false"/>
+        <attr name="relativePath" boolvalue="true"/>
+        <attr name="path" stringvalue="build.xml"/>
+      </file>
+      </folder>
   </folder>
 </filesystem>
