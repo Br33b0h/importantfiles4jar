@@ -7,22 +7,19 @@ package de.nigjo.kll.important.nodes;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 
-import org.openide.filesystems.FileAttributeEvent;
-import org.openide.filesystems.FileChangeListener;
-import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -33,6 +30,8 @@ import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Parameters;
 
+import de.nigjo.kll.important.ImportantFilesActionConnector;
+
 /**
  *
  * @author kll
@@ -42,14 +41,18 @@ public class ImportantFileChildFactory extends Children.Keys<String>
 
   private Project currentProject;
   private java.util.Map<String, Node> nodeMap;
-  private ProjectFileListener fileListener;
-
-  public ImportantFileChildFactory(Project currentProject)
+  private ImportantFilesActionConnector connector;
+  private ActionListener al;
+  public ImportantFileChildFactory(Project currentProject, ImportantFilesActionConnector con)
   {
     this.currentProject = currentProject;
-    fileListener = new ProjectFileListener();
     nodeMap = new HashMap<>();
+    al = this::actionPerformed;
+    connector = con;
+  }
 
+  private void actionPerformed(ActionEvent evt){
+    setKeys(createKeys());
   }
 
   @Override
@@ -58,66 +61,16 @@ public class ImportantFileChildFactory extends Children.Keys<String>
   {
     setKeys(createKeys());
     //Register Listener to immediatly refresh the node tree if something changes.
-    updateFileListener(true);
+    connector.addActionListener(al);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   protected void removeNotify()
   {
-    updateFileListener(false);
     setKeys(Collections.EMPTY_LIST);
+    connector.removeActionListener(al);
   }
-
-  private void updateFileListener(boolean add)
-  {
-    FileObject folder_listener =
-        FileUtil.getConfigRoot().getFileObject("de-nigjo-kll-important/FileListener");
-    Enumeration<? extends FileObject> listener = folder_listener.getChildren(true);
-    while(listener.hasMoreElements())
-    {
-      FileObject nextElement = listener.nextElement();
-      Boolean relative = (Boolean)nextElement.getAttribute("relativePath");
-      String path = nextElement.getAttribute("path").toString();
-      Boolean recursive = (Boolean)nextElement.getAttribute("recursive");
-      if(relative)
-      {
-        doFileListener(this.currentProject.getProjectDirectory().getFileObject(path), add,
-            recursive);
-      }
-    }
-  }
-
-  private void doFileListener(FileObject f, boolean add, boolean recursive)
-  {
-    if(f == null)
-    {
-      return;
-    }
-    if(!recursive)
-    {
-      if(add)
-      {
-        f.addFileChangeListener(fileListener);
-      }
-      else
-      {
-        f.removeFileChangeListener(fileListener);
-      }
-    }
-    else
-    {
-      if(add)
-      {
-        f.addRecursiveListener(fileListener);
-      }
-      else
-      {
-        f.removeRecursiveListener(fileListener);
-      }
-    }
-  }
-
 
   protected List<String> createKeys()
   {
@@ -177,48 +130,6 @@ public class ImportantFileChildFactory extends Children.Keys<String>
   {
     Node resultNode = nodeMap.get(key);
     return resultNode;
-  }
-
-  private class ProjectFileListener implements FileChangeListener
-  {
-
-    @Override
-    public void fileFolderCreated(FileEvent fe)
-    {
-      fe.getFile().addFileChangeListener(this);
-      setKeys(createKeys());
-    }
-
-    @Override
-    public void fileDataCreated(FileEvent fe)
-    {
-      setKeys(createKeys());
-    }
-
-    @Override
-    public void fileChanged(FileEvent fe)
-    {
-    }
-
-    @Override
-    public void fileDeleted(FileEvent fe)
-    {
-      nodeMap.remove(fe.getFile().getName());
-      setKeys(createKeys());
-    }
-
-    @Override
-    public void fileRenamed(FileRenameEvent fe)
-    {
-      nodeMap.remove(fe.getName());
-      setKeys(createKeys());
-    }
-
-    @Override
-    public void fileAttributeChanged(FileAttributeEvent fe)
-    {
-    }
-
   }
 
   private class ImportantFileFilterNode extends FilterNode
