@@ -5,6 +5,8 @@
  */
 package de.nigjo.kll.important.nodes;
 
+import java.util.List;
+
 import java.awt.Image;
 
 import javax.swing.Action;
@@ -15,7 +17,10 @@ import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
+
+import de.nigjo.kll.important.ImportantFilesActionConnector;
 
 /**
  * A Node for displaying Important Files.
@@ -25,12 +30,16 @@ import org.openide.util.lookup.Lookups;
 public class ImportantFilesNode extends FilterNode
 {
   private static final String KEY_DISPLAY_NAME = "ImportantFilesNode.displayName";
+  private static final String ACTIONS_PATH = "de/nigjo/kll/ImportantFilesNode/Actions";
 
   public ImportantFilesNode(Node original, Project context)
   {
-    super(original, new ImportantFileChildFactory(context), Lookups.singleton(context));
+    this(original, context, new ImportantFilesActionConnector());
   }
 
+  private ImportantFilesNode(Node original, Project context, ImportantFilesActionConnector conn){
+    super(original, new ImportantFileChildFactory(context, conn), Lookups.fixed(context, conn));
+  }
   @Override
   public Image getIcon(int type)
   {
@@ -58,6 +67,14 @@ public class ImportantFilesNode extends FilterNode
   @Override
   public Action[] getActions(boolean context)
   {
-    return null;
+    List<? extends Action> nodeActions = Utilities.actionsForPath(ACTIONS_PATH);
+    if(nodeActions.isEmpty())
+    {
+      return null;
+    }
+    else
+    {
+      return nodeActions.toArray(new Action[0]);
+    }
   }
 }
