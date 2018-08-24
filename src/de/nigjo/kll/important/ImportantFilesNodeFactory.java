@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package de.nigjo.kll.important;
 
 import org.netbeans.api.project.Project;
@@ -22,24 +21,20 @@ import de.nigjo.kll.important.nodes.ImportantFilesNode;
  *
  * @author breebo
  */
-@NodeFactory.Registration(projectType =
-    {
-      "org-netbeans-modules-java-j2seproject"
-    },position = 250)
-public class ImportantFilesNodeFactory implements  NodeFactory
-{
+@NodeFactory.Registration(projectType = {
+  "org-netbeans-modules-java-j2seproject"
+},
+    position = 250)
+public class ImportantFilesNodeFactory implements NodeFactory {
 
   @Override
-  public NodeList<?> createNodes(Project p)
-  {
-    try
-    {
+  public NodeList<?> createNodes(Project p) {
+    try {
       DataObject found = DataObject.find(p.getProjectDirectory().getFileObject("nbproject"));
       Node original = found.getNodeDelegate();
-      return NodeFactorySupport.fixedNodeList(new ImportantFilesNode(original,p));
+      return NodeFactorySupport.fixedNodeList(new ImportantFilesNode(original, p));
     }
-    catch(DataObjectNotFoundException ex)
-    {
+    catch(DataObjectNotFoundException ex) {
       Exceptions.printStackTrace(ex);
     }
     return NodeFactorySupport.fixedNodeList();
